@@ -1,10 +1,10 @@
-use std::path::PathBuf;
-use std::fs::File;
-use csv::{Reader};
+use anyhow::{Context, Result};
+use csv::Reader;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{Error, ErrorKind, Result as IoResult};
-use anyhow::{Context, Result};
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 struct Record {
@@ -13,17 +13,17 @@ struct Record {
 }
 
 pub fn parse_csv(path: &PathBuf) -> Result<HashMap<String, String>> {
-    let rdr = read_csv(path)
-        .with_context(|| "could not read file")?;
-    let records = process_records(rdr)
-        .with_context(|| "could not parse csv")?;
+    let rdr = read_csv(path).with_context(|| "could not read file")?;
+    let records = process_records(rdr).with_context(|| "could not parse csv")?;
     Ok(records)
 }
 
 fn read_csv(path: &PathBuf) -> IoResult<Reader<File>> {
     if !path.exists() {
-        return Err(Error::new(ErrorKind::InvalidData,
-                              format!("the file `{}` does not exist", &path.to_str().unwrap())));
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            format!("the file `{}` does not exist", &path.to_str().unwrap()),
+        ));
     }
     Ok(csv::Reader::from_path(path).unwrap())
 }
@@ -46,25 +46,34 @@ fn process_records(mut rdr: Reader<File>) -> IoResult<HashMap<String, String>> {
 mod tests {
     use super::*;
     use std::io::Write;
-    use tempfile::NamedTempFile;
     use std::result;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn should_load_csv() {
-        let path = PathBuf::from("data/test.csv");
-        let rdr = read_csv(&path);
+        let mut file = NamedTempFile::new().unwrap();
+        writeln!(file, "uid,content").unwrap();
+        writeln!(file, "1,string one").unwrap();
+        writeln!(file, "2,string twi").unwrap();
+        writeln!(file, "3,string three").unwrap();
+        let path = file.path();
+        let pb = PathBuf::from(Box::new(path).as_ref());
+        let rdr = read_csv(&pb);
 
         assert_eq!(3, rdr.unwrap().records().count());
     }
 
     #[test]
-    // #[should_panic(expected = "could not read file")]
-    fn should_throw_error_if_no_file()  -> result::Result<(), String> {
+    fn should_throw_error_if_no_file() -> result::Result<(), String> {
         let path = PathBuf::from("data/test1.csv");
         match read_csv(&path) {
-            Ok(_) => Err(String::from("expected to fail because there is no such file")),
+            Ok(_) => Err(String::from(
+                "expected to fail because there is no such file",
+            )),
             Err(e) => {
-                if e.to_string().contains("the file `data/test1.csv` does not exist") {
+                if e.to_string()
+                    .contains("the file `data/test1.csv` does not exist")
+                {
                     Ok(())
                 } else {
                     Err(String::from("expected to contain [the file `data/test1.csv` does not exist] message, but did not"))
@@ -87,7 +96,9 @@ mod tests {
                 if e.to_string().contains("the file is empty") {
                     Ok(())
                 } else {
-                    Err(String::from("expected to contain [the file is empty] message, but did not"))
+                    Err(String::from(
+                        "expected to contain [the file is empty] message, but did not",
+                    ))
                 }
             }
         }

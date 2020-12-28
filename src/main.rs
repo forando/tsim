@@ -1,14 +1,14 @@
-mod csv_extractor;
 mod console_writer;
+mod csv_extractor;
 mod similarity_analyzer;
 mod threadpool;
 mod utils;
 
-use structopt::StructOpt;
 use anyhow::Result;
+use structopt::StructOpt;
 
 fn main() -> Result<()> {
-    let opt  = process_opts();
+    let opt = process_opts();
 
     let records = csv_extractor::parse_csv(&opt.path)?;
 
@@ -32,7 +32,7 @@ struct Opt {
 
     /// Displays similarities distribution
     #[structopt(long)]
-    pub display: bool
+    pub display: bool,
 }
 
 fn process_opts() -> Opt {

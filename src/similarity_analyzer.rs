@@ -1,11 +1,11 @@
+use crate::threadpool::ThreadPool;
+use crate::utils::{FloatWrapper, Similarities};
+use indicatif::ProgressBar;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
-use indicatif::ProgressBar;
-use crate::threadpool::ThreadPool;
+use std::sync::mpsc::Sender;
 use std::sync::{mpsc, Arc};
 use std::thread;
-use std::sync::mpsc::Sender;
-use crate::utils::{FloatWrapper, Similarities};
 
 const PRECISION: usize = 3;
 
@@ -19,7 +19,7 @@ fn vec_to_similarities(records: Vec<HashSet<String>>) -> Similarities {
 
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(move|| run_similarities(records, tx));
+    thread::spawn(move || run_similarities(records, tx));
 
     let total_combinations = calculate_combinations(records_length);
     let pb = ProgressBar::new(total_combinations as u64);
@@ -60,7 +60,7 @@ fn run_similarities(records: Vec<HashSet<String>>, tx: Sender<Vec<f32>>) {
         let tx = mpsc::Sender::clone(&tx);
 
         let records = Arc::clone(&records);
-        pool.execute(move||{
+        pool.execute(move || {
             let next = i + 1;
             let mut similarities: Vec<f32> = Vec::with_capacity(records_length - i);
             for j in next..records_length {
@@ -77,7 +77,7 @@ fn run_similarities(records: Vec<HashSet<String>>, tx: Sender<Vec<f32>>) {
 fn map_to_vec(records: HashMap<String, String>) -> Vec<HashSet<String>> {
     let mut lines: Vec<HashSet<String>> = Vec::with_capacity(records.len());
     let (tx, rx) = mpsc::channel();
-    thread::spawn(move||text_to_set(records, tx));
+    thread::spawn(move || text_to_set(records, tx));
     for received in rx {
         lines.push(received);
     }
@@ -90,7 +90,7 @@ fn text_to_set(records: HashMap<String, String>, tx: Sender<HashSet<String>>) {
 
     for (_, content) in records {
         let tx = mpsc::Sender::clone(&tx);
-        pool.execute(move|| {
+        pool.execute(move || {
             let line = get_stripped_string(&content);
             tx.send(line).unwrap();
         });
@@ -107,7 +107,7 @@ fn get_stripped_string(s1: &str) -> HashSet<String> {
     for line in split {
         set.insert(line.parse().unwrap());
     }
-    return  set;
+    return set;
 }
 
 fn get_similarity(arr1: &HashSet<String>, arr2: &HashSet<String>) -> f32 {
@@ -129,7 +129,11 @@ mod tests {
     #[test]
     fn should_split_string() {
         let res = get_stripped_string("Hello. I’m Andrew; and, who're you?you");
-        assert_eq!(8, res.len(), "get_stripped_string('Hello. I’m Andrew; and, who're you?you')");
+        assert_eq!(
+            8,
+            res.len(),
+            "get_stripped_string('Hello. I’m Andrew; and, who're you?you')"
+        );
     }
 
     #[test]
@@ -163,7 +167,7 @@ mod tests {
 
         let records: Vec<HashSet<String>> = vec![record1, record2];
 
-        thread::spawn(move|| run_similarities(records, tx));
+        thread::spawn(move || run_similarities(records, tx));
 
         let mut i = 0;
         for _ in rx {
@@ -183,7 +187,7 @@ mod tests {
 
         let records: Vec<HashSet<String>> = vec![record1];
 
-        thread::spawn(move|| run_similarities(records, tx));
+        thread::spawn(move || run_similarities(records, tx));
 
         let mut i = 0;
         for _ in rx {
@@ -199,7 +203,7 @@ mod tests {
 
         let records: Vec<HashSet<String>> = vec![];
 
-        thread::spawn(move|| run_similarities(records, tx));
+        thread::spawn(move || run_similarities(records, tx));
 
         let mut i = 0;
         for _ in rx {

@@ -1,13 +1,15 @@
-use std::io::{self, Write, Stdout, BufWriter};
+use std::io::{self, BufWriter, Stdout, Write};
 
 pub struct Writer {
-    writer: BufWriter<Stdout>
+    writer: BufWriter<Stdout>,
 }
 
 impl Writer {
     pub fn new() -> Writer {
         let stdout = io::stdout();
-        Writer { writer: BufWriter::new(stdout) }
+        Writer {
+            writer: BufWriter::new(stdout),
+        }
     }
 
     pub fn add_line(&mut self, line: String) {
