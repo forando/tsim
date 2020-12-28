@@ -107,7 +107,7 @@ fn get_stripped_string(s1: &str) -> HashSet<String> {
     for line in split {
         set.insert(line.parse().unwrap());
     }
-    return set;
+    set
 }
 
 fn get_similarity(arr1: &HashSet<String>, arr2: &HashSet<String>) -> f32 {

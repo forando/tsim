@@ -25,7 +25,7 @@ struct Frequencies {
 
 impl Frequencies {
     fn new(results: Vec<usize>, canvas_height: usize) -> Frequencies {
-        let max = results.iter().max().unwrap().clone();
+        let max = *results.iter().max().unwrap();
         Frequencies {
             results,
             max_freq: max,
@@ -59,7 +59,7 @@ impl Similarities {
         }
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn pipe_to_string(&self) -> String {
         let return_char_len = 1_usize;
         let similarity_text_len = self.precision + 2;
         let line_len = similarity_text_len + return_char_len;
@@ -153,8 +153,7 @@ impl Similarities {
     }
 
     fn canvas_shift_right(&self) -> usize {
-        let min_shift_left = calculate_shift(self.min, LEFT);
-        min_shift_left
+        calculate_shift(self.min, LEFT)
     }
 
     fn calculate_min_avg_width(&self, width: usize) -> usize {

@@ -85,7 +85,7 @@ mod tests {
     #[test]
     fn should_throw_error_if_file_empty() -> result::Result<(), String> {
         let mut file = NamedTempFile::new().unwrap();
-        writeln!(file, "").unwrap();
+        writeln!(file).unwrap();
         let path = file.path();
         let pb = PathBuf::from(Box::new(path).as_ref());
         let rdr = read_csv(&pb).unwrap();

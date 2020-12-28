@@ -1,4 +1,3 @@
-mod console_writer;
 mod csv_extractor;
 mod similarity_analyzer;
 mod threadpool;
@@ -17,7 +16,7 @@ fn main() -> Result<()> {
     if opt.display {
         println!("{}", similarities);
     } else {
-        println!("{}", similarities.to_string())
+        println!("{}", similarities.pipe_to_string())
     }
 
     Ok(())
