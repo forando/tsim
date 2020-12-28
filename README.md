@@ -1,3 +1,4 @@
+![CI](https://github.com/forando/tsim/workflows/CI/badge.svg)
 # Text Similarity CLI
 
 - [Text Similarity CLI](#text-similarity-cli)
