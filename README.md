@@ -1,4 +1,5 @@
 ![CI](https://github.com/forando/tsim/workflows/CI/badge.svg)
+![Apache2/MIT licensed](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)
 # Text Similarity CLI
 
 - [Text Similarity CLI](#text-similarity-cli)
