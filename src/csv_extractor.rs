@@ -1,10 +1,11 @@
-use anyhow::{Context, Result};
-use csv::Reader;
-use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Error, ErrorKind, Result as IoResult};
 use std::path::PathBuf;
+
+use anyhow::{Context, Result};
+use csv::Reader;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 struct Record {
@@ -44,10 +45,12 @@ fn process_records(mut rdr: Reader<File>) -> IoResult<HashMap<String, String>> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::io::Write;
     use std::result;
+
     use tempfile::NamedTempFile;
+
+    use super::*;
 
     #[test]
     fn should_load_csv() {
